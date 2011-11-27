@@ -1,5 +1,5 @@
-Nogg: A simple logging utility
-==============================
+Nogg: Simple logging for node.js
+================================
 
 Configure your logger in config.coffee/config.js in your NODE_PATH:
 
