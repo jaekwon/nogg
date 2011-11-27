@@ -1,0 +1,15 @@
+{
+  "name": "nogg",
+  "version": "0.0.1",
+  "description": "simple logging for node.js",
+  "keywords": ["logging"],
+  "repository": "git://github.com/jaekwon/nogg.git",
+  "author": "Jae Kwon <jkwon.work@gmail.com> (http://jaekwon.net/)",
+  "repository": "git://github.com/jaekwon/nogg.git",
+  "dependencies": {
+  },
+  "devDependencies": {
+  },
+  "main": "index",
+  "engines": { "node": ">= 0.5.0 < 0.7.0" }
+}
