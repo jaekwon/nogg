@@ -18,9 +18,12 @@
 #
 
 fs = require 'fs'
-colors = require 'colors'
-logging_config = require('config').logging
+colors = require './colors'
 assert = require 'assert'
+try
+  logging_config = require('config')?.logging
+catch e
+  logging_config = undefined
 
 LEVELS = {debug: 0, info: 1, warn: 2, error: 3}
 COLORS = {debug: colors.white, info: colors.green, warn: colors.yellow, error: colors.red}
@@ -70,11 +73,19 @@ write_log = (handler, name, level, message) ->
   catch e
     console.log "ERROR IN LOGGING: COULD NOT WRITE TO FILE #{handler.file}"
 
+# If your app doesn't have a global config module,
+# you can also configure the logger by calling this function.
+# Note that this relies on node.js's module caching behavior.
+exports.configure = (config) ->
+  logging_config = config
+  return exports
+
 # Main logging function.
 # Logs a 'message' with 'level' to the logger named 'name'
 exports.log = (name, level, message) ->
   # validation
   assert.ok(LEVELS[level]?, "Unknown logging level '#{level}'")
+  assert.ok(logging_config?, "Nogg wasn't configured. Call require('nogg').configure(...)")
   # find log route, starting with the full name,
   name_parts = name.split('.')
   for use_parts in [name_parts.length..1]
