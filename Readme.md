@@ -34,6 +34,12 @@ Then,
  - stdout messages are in color.
  - You can turn off formatting/color for a handler with formatter: null.
 
+Roadmap
+=======
+
+ - Real log formatting
+ - Connect module for request logging
+
 Development
 ===========
 
