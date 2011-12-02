@@ -26,7 +26,7 @@ catch e
   logging_config = undefined
 
 LEVELS = {debug: 0, info: 1, warn: 2, error: 3}
-COLORS = {debug: colors.white, info: colors.green, warn: colors.yellow, error: colors.red}
+COLORS = {debug: colors.green, info: colors.white, warn: colors.yellow, error: colors.red}
 pidmap = {} # process -> file streams
 
 # get a WritableStream
