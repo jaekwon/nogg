@@ -1,6 +1,6 @@
 {
   "name": "nogg",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "description": "simple logging for node.js",
   "keywords": ["logging"],
   "repository": "git://github.com/jaekwon/nogg.git",
