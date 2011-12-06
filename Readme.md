@@ -34,6 +34,11 @@ Then,
  - stdout messages are in color.
  - You can turn off formatting/color for a handler with formatter: null.
 
+Installation
+============
+
+    npm install nogg
+
 Roadmap
 =======
 
