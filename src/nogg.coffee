@@ -23,7 +23,7 @@ assert = require 'assert'
 try
   logging_config = require('config')?.logging
 catch e
-  logging_config = undefined
+  logging_config = {'default': [{file: 'stdout', level: 'debug'}]}
 
 LEVELS = {debug: 0, info: 1, warn: 2, error: 3}
 COLORS = {debug: colors.green, info: colors.white, warn: colors.yellow, error: colors.red}
