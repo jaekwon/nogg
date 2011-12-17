@@ -1,0 +1,4 @@
+* v0.0.3 (Dec 16, 2011)
+- Added set_stream, for testing.
+- Bind Logger.XYZ functions to Logger instance.
+- More testing. We'll get there.

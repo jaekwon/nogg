@@ -27,18 +27,26 @@ catch e
 
 LEVELS = {debug: 0, info: 1, warn: 2, error: 3}
 COLORS = {debug: colors.green, info: colors.white, warn: colors.yellow, error: colors.red}
-pidmap = {} # process -> file streams
+STREAM_GENERATORS = # name -> stream generator
+  stdout: ->
+    process.stdout
+  stderr: ->
+    process.stderr
+PIDMAP = {} # process -> file streams cache
 
-# get a WritableStream
-# filename: a relative path to the file, stdout, or stdin
+# Get a WritableStream
+# name: a relative path to the file, stdout, or stdin, or some other stream name
 # NOTE if the file gets deleted, you may end up writing to a zombie.
-get_writestream = (filename) ->
-  if filename == 'stdout'
-    return process.stdout
-  else if filename == 'stderr'
-    return process.stderr
-  filemap = (pidmap[process.pid] ||= {})
-  return (filemap[filename] ||= fs.createWriteStream(filename, flags: 'a', mode: 0666))
+# See set_stream.
+get_writestream = (name) ->
+  stream_cache = (PIDMAP[process.pid] ||= {})
+  if stream_cache[name]?
+    return stream_cache[name]
+  if STREAM_GENERATORS[name]?
+    stream = STREAM_GENERATORS[name]()
+  else
+    stream = fs.createWriteStream(name, flags: 'a', mode: 0666)
+  return (stream_cache[name] = stream)
 
 # handler: an object (or list of objects) with the following keys:
 #   level:   the desired level (debug, info, warn, error) threshold, or undefined (no threshold)
@@ -80,12 +88,21 @@ exports.configure = (config) ->
   logging_config = config
   return exports
 
+# Set a stream-like object generator, like 'stdout' or 'stdin'
+# Generator should return a stream appropriate for that process.
+exports.set_stream = (name, stream_gen) ->
+  STREAM_GENERATORS[name] = stream_gen
+  # clear existing streams if necessary
+  # TODO consider closing these streams
+  delete PIDMAP[process.pid]?[name]
+
 # Main logging function.
 # Logs a 'message' with 'level' to the logger named 'name'
 exports.log = (name, level, message) ->
   # validation
   assert.ok(LEVELS[level]?, "Unknown logging level '#{level}'")
   assert.ok(logging_config?, "Nogg wasn't configured. Call require('nogg').configure(...)")
+
   # find log route, starting with the full name,
   name_parts = name.split('.')
   for use_parts in [name_parts.length..1]
@@ -110,8 +127,15 @@ for level, num of LEVELS
 # convenience, wraps the logger name into an object
 class exports.Logger
   constructor: (@name) ->
-  log: (level, message) ->
+    # bind 'this' to this functions manually
+    for level, num of LEVELS
+      this[level] = (Logger::[level]).bind(this)
+
+  # log function to specify the level dynamically
+  log: (level, message) =>
     exports.log @name, level, message
+
+  # debug, info, warn, error etc functions
   for level, num of LEVELS
     do (level, num) =>
       this::[level] = (message) ->
