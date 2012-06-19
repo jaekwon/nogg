@@ -49,5 +49,5 @@ doTest "test that logger functions are already bound as needed", (logger) ->
 
   blah.debug "debug"
   blah.info  "info"
-  blah.warn  "warn"
-  blah.error "error"
+  blah.warn  "warn", "second", "third"
+  blah.error "error", "second", "third"

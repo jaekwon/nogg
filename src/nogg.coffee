@@ -20,6 +20,7 @@
 fs = require 'fs'
 colors = require './colors'
 assert = require 'assert'
+{inspect} = require 'util'
 try
   loggingConfig = require('config')?.logging
 catch e
@@ -96,12 +97,23 @@ exports.setStream = (name, streamGen) ->
   # TODO consider closing these streams
   delete PIDMAP[process.pid]?[name]
 
+toMessage = (obj) ->
+  if typeof obj is 'object'
+    return inspect obj
+  else
+    return ''+obj
+
 # Main logging function.
 # Logs a 'message' with 'level' to the logger named 'name'
-exports.log = (name, level, message) ->
+exports.log = (name, level, message...) ->
   # validation
   assert.ok(LEVELS[level]?, "Unknown logging level '#{level}'")
   assert.ok(loggingConfig?, "Nogg wasn't configured. Call require('nogg').configure(...)")
+
+  switch message.length
+    when 0 then message = ''
+    when 1 then message = toMessage message[0]
+    else        message = (toMessage(x) for x in message).join(' ')
 
   # find log route, starting with the full name,
   nameParts = name.split('.')
@@ -121,8 +133,8 @@ exports.log = (name, level, message) ->
 # convenience
 for level, num of LEVELS
   do (level, num) ->
-    exports[level] = (name, message) ->
-      exports.log name, level, message
+    exports[level] = (name, message...) ->
+      exports.log name, level, message...
 
 # convenience, wraps the logger name into an object
 class exports.Logger
@@ -132,14 +144,14 @@ class exports.Logger
       this[level] = (Logger::[level]).bind(this)
 
   # log function to specify the level dynamically
-  log: (level, message) =>
-    exports.log @name, level, message
+  log: (level, message...) =>
+    exports.log @name, level, message...
 
   # debug, info, warn, error etc functions
   for level, num of LEVELS
     do (level, num) =>
-      this::[level] = (message) ->
-        this.log(level, message)
+      this::[level] = (message...) ->
+        this.log(level, message...)
 
 # convenience, return a new logger
 exports.logger = (name) ->
