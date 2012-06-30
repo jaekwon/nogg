@@ -18,7 +18,10 @@
 #
 
 fs = require 'fs'
-colors = require './colors'
+try
+  colors = require 'cardamom/src/colors'
+catch e
+  colors = require './colors'
 assert = require 'assert'
 {inspect} = require 'util'
 try
