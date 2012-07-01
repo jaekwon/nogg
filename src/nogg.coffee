@@ -38,19 +38,27 @@ STREAM_GENERATORS = # name -> stream generator
     process.stderr
 PIDMAP = {} # process -> file streams cache
 
-# Get a WritableStream
-# name: a relative path to the file, stdout, or stdin, or some other stream name
 # NOTE if the file gets deleted, you may end up writing to a zombie.
-# See setStream.
-getWritestream = (name) ->
-  streamCache = (PIDMAP[process.pid] ||= {})
-  if streamCache[name]?
-    return streamCache[name]
-  if STREAM_GENERATORS[name]?
-    stream = STREAM_GENERATORS[name]()
+getStream = (handler) ->
+  if handler.file.write?
+    return handler.file
   else
-    stream = fs.createWriteStream(name, flags: 'a', mode: 0666)
-  return (streamCache[name] = stream)
+    name = handler.file # file or stream name
+    streamCache = (PIDMAP[process.pid] ||= {})
+    if streamCache[name]?
+      return streamCache[name]
+    if STREAM_GENERATORS[name]?
+      stream = STREAM_GENERATORS[name]()
+    else
+      stream = fs.createWriteStream(name, flags: 'a', mode: 0666)
+    return (streamCache[name] = stream)
+
+# NOTE Generator should return a stream appropriate for that process.
+@setStream = (name, streamGen) ->
+  STREAM_GENERATORS[name] = streamGen
+  # clear existing streams if necessary
+  # TODO consider closing these streams
+  delete PIDMAP[process.pid]?[name]
 
 # handler: an object (or list of objects) with the following keys:
 #   level:   the desired level (debug, info, warn, error) threshold, or undefined (no threshold)
@@ -79,26 +87,18 @@ writeLog = (handler, name, level, message) ->
     if handler.file == 'stdout'
       logLine = COLORS[level](logLine)
   #
-  wstream = getWritestream(handler.file)
+  wstream = getStream(handler)
   try
     wstream.write(logLine, 'utf8')
   catch e
-    console.log "ERROR IN LOGGING: COULD NOT WRITE TO FILE #{handler.file}"
+    console.log "ERROR IN LOGGING: COULD NOT WRITE TO FILE #{handler.file}. #{e.stack}"
 
 # If your app doesn't have a global config module,
 # you can also configure the logger by calling this function.
 # Note that this relies on node.js's module caching behavior.
-exports.configure = (config) ->
+@configure = (config) ->
   loggingConfig = config
   return exports
-
-# Set a stream-like object generator, like 'stdout' or 'stdin'
-# Generator should return a stream appropriate for that process.
-exports.setStream = (name, streamGen) ->
-  STREAM_GENERATORS[name] = streamGen
-  # clear existing streams if necessary
-  # TODO consider closing these streams
-  delete PIDMAP[process.pid]?[name]
 
 toMessage = (obj) ->
   if typeof obj is 'object'
