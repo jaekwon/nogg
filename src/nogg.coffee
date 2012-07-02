@@ -29,8 +29,8 @@ try
 catch e
   loggingConfig = {'default': [{file: 'stdout', level: 'debug'}]}
 
-LEVELS = {debug: 0, info: 1, warn: 2, error: 3}
-COLORS = {debug: colors.green, info: colors.white, warn: colors.yellow, error: colors.red}
+LEVELS = {debug: 0, info: 1, warn: 2, error: 3, fatal: 3}
+COLORS = {debug: colors.green, info: colors.white, warn: colors.yellow, error: colors.red, fatal: colors.red}
 STREAM_GENERATORS = # name -> stream generator
   stdout: ->
     process.stdout

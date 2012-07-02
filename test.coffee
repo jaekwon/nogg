@@ -14,6 +14,7 @@ doTest "test on the console, with colors", (logger) ->
   logger.info  "info"
   logger.warn  "warn"
   logger.error "error"
+  logger.fatal "fatal"
 
 doTest "integration test", (logger) ->
   nogg.configure
@@ -36,8 +37,9 @@ doTest "integration test", (logger) ->
   logger.info  'info!'
   logger.warn  'warn!'
   logger.error 'error!'
+  logger.fatal 'fatal!'
 
-  assert.equal testOutput.join('\n'), "debug!\ninfo!\nwarn!\nwarn!\nerror!\nerror!"
+  assert.equal testOutput.join('\n'), "debug!\ninfo!\nwarn!\nwarn!\nerror!\nerror!\nfatal!\nfatal!"
 
 doTest "test that logger functions are already bound as needed", (logger) ->
 
@@ -46,8 +48,10 @@ doTest "test that logger functions are already bound as needed", (logger) ->
     info:  logger.info
     warn:  logger.warn
     error: logger.error
+    fatal: logger.fatal
 
   blah.debug "debug"
   blah.info  "info"
   blah.warn  "warn", "second", "third"
   blah.error "error", "second", "third"
+  blah.fatal "fatal", "second", "third"
