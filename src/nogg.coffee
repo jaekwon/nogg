@@ -50,7 +50,8 @@ getStream = (handler) ->
     if STREAM_GENERATORS[name]?
       stream = STREAM_GENERATORS[name]()
     else
-      stream = fs.createWriteStream(name, flags: 'a', mode: 0666)
+      stream = write: (msg, encoding='utf8') -> fs.appendFileSync(name, msg, encoding)
+      #stream = fs.createWriteStream(name, flags: 'a', mode: 0666)
     return (streamCache[name] = stream)
 
 # NOTE Generator should return a stream appropriate for that process.
