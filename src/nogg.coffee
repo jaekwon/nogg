@@ -83,10 +83,10 @@ writeLog = (handler, name, level, message) ->
   # TODO implement formatting/coloring
   if handler.formatter is null
     logLine = message
+  else if handler.formatter is undefined
+    logLine = "#{colors.blue new Date()}\t#{COLORS[level] level}\t#{colors.blue name+':'}\n#{message}\n"
   else
-    logLine = "#{new Date()}\t#{level}\t#{name} - #{message}\n"
-    if handler.file == 'stdout'
-      logLine = COLORS[level](logLine)
+    logLine = handler.formatter({level,name,message})
   #
   wstream = getStream(handler)
   try
