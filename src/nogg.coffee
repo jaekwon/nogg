@@ -84,7 +84,8 @@ writeLog = (handler, name, level, message) ->
   if handler.formatter is null
     logLine = message
   else if handler.formatter is undefined
-    logLine = "#{colors.blue new Date()}\t#{COLORS[level] level}\t#{colors.blue name+':'}\n#{message}\n"
+    #logLine = "#{colors.blue new Date()}\t#{COLORS[level] level}\t#{colors.blue name+':'}\n#{COLORS[level] message}\n"
+    logLine = "   #{COLORS[level] level+' -'} #{colors.blue '['+name+']'} #{message}\n"
   else
     logLine = handler.formatter({level,name,message})
   #
