@@ -48,4 +48,6 @@ Roadmap
 Development
 ===========
 
-coffee -o lib src/*
+`npm link .` maybe as sudo, to link this project directory globally.
+`cake build` to build src/*.coffee to lib/*
+`cake test` to build and run a test script

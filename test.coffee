@@ -1,5 +1,9 @@
 assert = require 'assert'
-nogg = require 'nogg'
+try
+  nogg = require 'nogg'
+catch error
+  console.log "Error in require('nogg'). Run `npm install nogg`, or if you have the source just `(sudo) npm link .; npm link nogg;`"
+  process.exit(1)
 
 # TODO: should capture output, like in the integration test below.
 doTest = (description, testFn) ->
